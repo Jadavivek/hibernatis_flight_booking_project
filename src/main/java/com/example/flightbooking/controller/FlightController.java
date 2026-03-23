@@ -1,12 +1,28 @@
-@Controller
+package com.example.flightbooking.controller;
+
+import com.example.flightbooking.entity.Flight;
+import com.example.flightbooking.service.FlightService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/flights")
 public class FlightController {
 
-    @Autowired
-    private FlightService service;
+    private final FlightService service;
 
-    @GetMapping("/flights")
-    public String getFlights(Model model) {
-        model.addAttribute("flights", service.getAllFlights());
-        return "flights";
+    public FlightController(FlightService service) {
+        this.service = service;
+    }
+
+    @PostMapping
+    public Flight add(@RequestBody Flight f) {
+        return service.addFlight(f);
+    }
+
+    @GetMapping
+    public List<Flight> getAll() {
+        return service.getAll();
     }
 }
