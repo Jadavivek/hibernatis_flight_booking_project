@@ -1,33 +1,25 @@
-package com.bus.service;
+package com.bus.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.*;
 
-import com.bus.model.Bus;
-import com.bus.repository.BusRepository;
+import com.bus.model.User;
+import com.bus.service.AuthService;
 
-import java.util.List;
-
-@Service
-public class BusService {
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
 
     @Autowired
-    private BusRepository repo;
+    private AuthService service;
 
-    public Bus addBus(Bus bus) {
-        return repo.save(bus);
+    @PostMapping("/register")
+    public User register(@RequestBody User user) {
+        return service.register(user);
     }
 
-    public List<Bus> getAllBuses() {
-        return repo.findAll();
-    }
-
-    public Bus updateBus(Long id, Bus bus) {
-        bus.setId(id);
-        return repo.save(bus);
-    }
-
-    public void deleteBus(Long id) {
-        repo.deleteById(id);
+    @PostMapping("/login")
+    public User login(@RequestBody User user) {
+        return service.login(user.getUsername(), user.getPassword());
     }
 }
