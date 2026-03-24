@@ -1,52 +1,34 @@
-package com.example.college.config;
+package com.example.college.controller;
 
-import com.example.college.repository.UserRepository;
-import org.springframework.context.annotation.*;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
+import com.example.college.model.User;
+import com.example.college.service.UserService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
-@Configuration
-public class SecurityConfig {
+@Controller
+public class AuthController {
 
-    private final UserRepository repo;
+    private final UserService service;
 
-    public SecurityConfig(UserRepository repo) {
-        this.repo = repo;
+    public AuthController(UserService service) {
+        this.service = service;
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> repo.findByUsername(username)
-                .map(user -> User.withUsername(user.getUsername())
-                        .password(user.getPassword())
-                        .roles(user.getRole())
-                        .build())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    @GetMapping("/register")
+    public String register(Model model) {
+        model.addAttribute("user", new User());
+        return "register";
     }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/register", "/saveUser").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/user/**").hasRole("USER")
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .defaultSuccessUrl("/dashboard", true)
-            )
-            .logout(logout -> logout.logoutSuccessUrl("/login"));
-
-        return http.build();
+    @PostMapping("/saveUser")
+    public String saveUser(@ModelAttribute User user) {
+        service.register(user);
+        return "redirect:/login";
     }
 
-    @Bean
-    public BCryptPasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "dashboard";
     }
 }
