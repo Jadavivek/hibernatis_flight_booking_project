@@ -1,5 +1,2 @@
-<form method="post" action="/login">
-    Username: <input type="text" name="username"><br>
-    Password: <input type="password" name="password"><br>
-    <button>Login</button>
-</form>
+<h2>Dashboard</h2>
+<a href="/admin/home">Admin</a>
