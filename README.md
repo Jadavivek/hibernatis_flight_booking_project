@@ -1,24 +1,29 @@
 package com.example.college.service;
 
-import com.example.college.model.User;
-import com.example.college.repository.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.example.college.model.Student;
+import com.example.college.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
-public class UserService {
+public class StudentService {
 
-    private final UserRepository repo;
-    private final PasswordEncoder encoder;
+    private final StudentRepository repo;
 
-    public UserService(UserRepository repo, PasswordEncoder encoder) {
+    public StudentService(StudentRepository repo) {
         this.repo = repo;
-        this.encoder = encoder;
     }
 
-    public void register(User user) {
-        user.setPassword(encoder.encode(user.getPassword()));
-        user.setRole("USER");
-        repo.save(user);
+    public void save(Student student) {
+        repo.save(student);
+    }
+
+    public List<Student> getAll() {
+        return repo.findAll();
+    }
+
+    public void delete(Long id) {
+        repo.deleteById(id);
     }
 }
