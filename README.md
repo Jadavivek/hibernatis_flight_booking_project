@@ -1,5 +1,5 @@
-<form action="/saveUser" method="post">
+<form method="post" action="/login">
     Username: <input type="text" name="username"><br>
     Password: <input type="password" name="password"><br>
-    <button type="submit">Register</button>
+    <button>Login</button>
 </form>
