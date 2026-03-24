@@ -1,3 +1,6 @@
-<h2>Admin Panel</h2>
-<a href="/admin/add">Add Student</a><br>
-<a href="/admin/view">View Students</a>
+<form action="/admin/save" method="post">
+    Name: <input type="text" name="name"><br>
+    Dept: <input type="text" name="department"><br>
+    Email: <input type="text" name="email"><br>
+    <button>Add</button>
+</form>
