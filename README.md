@@ -1,17 +1,10 @@
-package com.example.college.model;
+package com.example.college.repository;
 
-import jakarta.persistence.*;
+import com.example.college.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Entity
-public class Student {
+import java.util.Optional;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String name;
-    private String department;
-    private String email;
-
-    // getters and setters
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUsername(String username);
 }
