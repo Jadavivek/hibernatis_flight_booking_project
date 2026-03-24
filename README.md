@@ -1,34 +1,65 @@
-package com.example.college.service;
+package com.example.college.controller;
 
 import com.example.college.model.Student;
-import com.example.college.repository.StudentRepository;
-import org.springframework.stereotype.Service;
+import com.example.college.service.StudentService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+@Controller
+@RequestMapping("/admin")
+public class AdminController {
 
-@Service
-public class StudentService {
+    private final StudentService service;
 
-    private final StudentRepository repo;
-
-    public StudentService(StudentRepository repo) {
-        this.repo = repo;
+    public AdminController(StudentService service) {
+        this.service = service;
     }
 
-    public void save(Student student) {
-        repo.save(student);
+    // HOME
+    @GetMapping("/home")
+    public String home() {
+        return "admin";
     }
 
-    public List<Student> getAll() {
-        return repo.findAll();
+    // CREATE
+    @GetMapping("/add")
+    public String addStudent(Model model) {
+        model.addAttribute("student", new Student());
+        return "add-student";
     }
 
-    public Student getById(Long id) {
-        return repo.findById(id).orElse(null);
+    @PostMapping("/save")
+    public String saveStudent(@ModelAttribute Student student) {
+        service.save(student);
+        return "redirect:/admin/view";
     }
 
-    public void delete(Long id) {
-        repo.deleteById(id);
+    // READ
+    @GetMapping("/view")
+    public String viewStudents(Model model) {
+        model.addAttribute("students", service.getAll());
+        return "view-students";
+    }
+
+    // DELETE
+    @GetMapping("/delete/{id}")
+    public String delete(@PathVariable Long id) {
+        service.delete(id);
+        return "redirect:/admin/view";
+    }
+
+    // 🔥 UPDATE (NEW)
+    @GetMapping("/edit/{id}")
+    public String editStudent(@PathVariable Long id, Model model) {
+        Student student = service.getById(id);
+        model.addAttribute("student", student);
+        return "update-student";
+    }
+
+    @PostMapping("/update")
+    public String updateStudent(@ModelAttribute Student student) {
+        service.save(student); // save() works for update also
+        return "redirect:/admin/view";
     }
 }
