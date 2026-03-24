@@ -1,47 +1,34 @@
 package com.example.college.controller;
 
-import com.example.college.model.Student;
-import com.example.college.service.StudentService;
+import com.example.college.model.User;
+import com.example.college.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/admin")
-public class AdminController {
+public class AuthController {
 
-    private final StudentService service;
+    private final UserService service;
 
-    public AdminController(StudentService service) {
+    public AuthController(UserService service) {
         this.service = service;
     }
 
-    @GetMapping("/home")
-    public String adminHome() {
-        return "admin";
+    @GetMapping("/register")
+    public String register(Model model) {
+        model.addAttribute("user", new User());
+        return "register";
     }
 
-    @GetMapping("/add")
-    public String addStudent(Model model) {
-        model.addAttribute("student", new Student());
-        return "add-student";
+    @PostMapping("/saveUser")
+    public String saveUser(@ModelAttribute User user) {
+        service.register(user);
+        return "redirect:/login";
     }
 
-    @PostMapping("/save")
-    public String saveStudent(@ModelAttribute Student student) {
-        service.save(student);
-        return "redirect:/admin/view";
-    }
-
-    @GetMapping("/view")
-    public String viewStudents(Model model) {
-        model.addAttribute("students", service.getAll());
-        return "view-students";
-    }
-
-    @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
-        service.delete(id);
-        return "redirect:/admin/view";
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "dashboard";
     }
 }
