@@ -3,15 +3,15 @@ package com.example.college.model;
 import jakarta.persistence.*;
 
 @Entity
-public class User {
+public class Student {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username;
-    private String password;
-    private String role; // ADMIN or USER
+    private String name;
+    private String department;
+    private String email;
 
     // getters and setters
 }
