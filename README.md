@@ -2,22 +2,15 @@
 <html>
 <body>
 
-<h2>Admin Panel</h2>
+<h2>User Dashboard</h2>
 
-<button onclick="addBus()">Add Bus</button>
+<button onclick="viewBuses()">View Buses</button>
 
 <script>
-function addBus() {
-    fetch("http://localhost:8080/bus/add", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            busName: "Admin Bus",
-            source: "A",
-            destination: "B",
-            seats: 40
-        })
-    })
+function viewBuses() {
+    fetch("http://localhost:8080/bus/all")
+    .then(res => res.json())
+    .then(data => console.log(data));
 }
 </script>
 
