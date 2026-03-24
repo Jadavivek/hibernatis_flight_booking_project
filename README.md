@@ -1,37 +1,23 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Login</title>
-</head>
 <body>
 
-<h2>Login</h2>
+<h2>Admin Panel</h2>
 
-<input type="text" id="username" placeholder="Username"><br><br>
-<input type="password" id="password" placeholder="Password"><br><br>
-
-<button onclick="login()">Login</button>
+<button onclick="addBus()">Add Bus</button>
 
 <script>
-function login() {
-    fetch("http://localhost:8080/auth/login", {
+function addBus() {
+    fetch("http://localhost:8080/bus/add", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            username: document.getElementById("username").value,
-            password: document.getElementById("password").value
+            busName: "Admin Bus",
+            source: "A",
+            destination: "B",
+            seats: 40
         })
     })
-    .then(res => res.json())
-    .then(data => {
-        if(data.role === "ADMIN") {
-            window.location.href = "admin.html";
-        } else if(data.role === "USER") {
-            window.location.href = "user.html";
-        } else {
-            alert("Invalid login");
-        }
-    });
 }
 </script>
 
