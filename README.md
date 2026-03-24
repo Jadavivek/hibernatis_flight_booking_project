@@ -1,29 +1,52 @@
-package com.example.college.service;
+package com.example.college.config;
 
-import com.example.college.model.Student;
-import com.example.college.repository.StudentRepository;
-import org.springframework.stereotype.Service;
+import com.example.college.repository.UserRepository;
+import org.springframework.context.annotation.*;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
-import java.util.List;
+@Configuration
+public class SecurityConfig {
 
-@Service
-public class StudentService {
+    private final UserRepository repo;
 
-    private final StudentRepository repo;
-
-    public StudentService(StudentRepository repo) {
+    public SecurityConfig(UserRepository repo) {
         this.repo = repo;
     }
 
-    public void save(Student student) {
-        repo.save(student);
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return username -> repo.findByUsername(username)
+                .map(user -> User.withUsername(user.getUsername())
+                        .password(user.getPassword())
+                        .roles(user.getRole())
+                        .build())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    public List<Student> getAll() {
-        return repo.findAll();
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/register", "/saveUser").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/user/**").hasRole("USER")
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .defaultSuccessUrl("/dashboard", true)
+            )
+            .logout(logout -> logout.logoutSuccessUrl("/login"));
+
+        return http.build();
     }
 
-    public void delete(Long id) {
-        repo.deleteById(id);
+    @Bean
+    public BCryptPasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
     }
 }
