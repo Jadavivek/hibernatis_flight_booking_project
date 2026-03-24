@@ -1,8 +1,7 @@
 package com.bus.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.bus.model.User;
+import com.bus.model.Bus;
 
-public interface UserRepository extends JpaRepository<User, Long> {
-    User findByUsername(String username);
+public interface BusRepository extends JpaRepository<Bus, Long> {
 }
