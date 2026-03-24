@@ -3,23 +3,36 @@ package com.bus.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.bus.model.User;
-import com.bus.service.AuthService;
+import com.bus.model.Bus;
+import com.bus.service.BusService;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/auth")
-public class AuthController {
+@RequestMapping("/bus")
+public class BusController {
 
     @Autowired
-    private AuthService service;
+    private BusService service;
 
-    @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return service.register(user);
+    @PostMapping("/add")
+    public Bus addBus(@RequestBody Bus bus) {
+        return service.addBus(bus);
     }
 
-    @PostMapping("/login")
-    public User login(@RequestBody User user) {
-        return service.login(user.getUsername(), user.getPassword());
+    @GetMapping("/all")
+    public List<Bus> getAll() {
+        return service.getAllBuses();
+    }
+
+    @PutMapping("/update/{id}")
+    public Bus update(@PathVariable Long id, @RequestBody Bus bus) {
+        return service.updateBus(id, bus);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public String delete(@PathVariable Long id) {
+        service.deleteBus(id);
+        return "Bus Deleted Successfully";
     }
 }
