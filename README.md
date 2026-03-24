@@ -1,65 +1,65 @@
-package com.example.college.controller;
+package com.example.college.config;
 
-import com.example.college.model.Student;
-import com.example.college.service.StudentService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import com.example.college.repository.UserRepository;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Controller
-@RequestMapping("/admin")
-public class AdminController {
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
-    private final StudentService service;
+@Configuration
+public class SecurityConfig {
 
-    public AdminController(StudentService service) {
-        this.service = service;
+    private final UserRepository repo;
+
+    public SecurityConfig(UserRepository repo) {
+        this.repo = repo;
     }
 
-    // HOME
-    @GetMapping("/home")
-    public String home() {
-        return "admin";
+    // 🔥 Load user from DB
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return username -> repo.findByUsername(username)
+                .map(user -> User.withUsername(user.getUsername())
+                        .password(user.getPassword())
+                        .roles(user.getRole()) // ADMIN / USER
+                        .build())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    // CREATE
-    @GetMapping("/add")
-    public String addStudent(Model model) {
-        model.addAttribute("student", new Student());
-        return "add-student";
+    // 🔥 Security Rules
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        http
+            .csrf(csrf -> csrf.disable()) // disable for simplicity
+
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/register", "/saveUser", "/css/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/user/**").hasRole("USER")
+                .anyRequest().authenticated()
+            )
+
+            .formLogin(form -> form
+                .loginPage("/login")              // custom login page
+                .defaultSuccessUrl("/dashboard", true)
+                .permitAll()
+            )
+
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout")
+                .permitAll()
+            );
+
+        return http.build();
     }
 
-    @PostMapping("/save")
-    public String saveStudent(@ModelAttribute Student student) {
-        service.save(student);
-        return "redirect:/admin/view";
-    }
-
-    // READ
-    @GetMapping("/view")
-    public String viewStudents(Model model) {
-        model.addAttribute("students", service.getAll());
-        return "view-students";
-    }
-
-    // DELETE
-    @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
-        service.delete(id);
-        return "redirect:/admin/view";
-    }
-
-    // 🔥 UPDATE (NEW)
-    @GetMapping("/edit/{id}")
-    public String editStudent(@PathVariable Long id, Model model) {
-        Student student = service.getById(id);
-        model.addAttribute("student", student);
-        return "update-student";
-    }
-
-    @PostMapping("/update")
-    public String updateStudent(@ModelAttribute Student student) {
-        service.save(student); // save() works for update also
-        return "redirect:/admin/view";
+    // 🔥 Password Encoder
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
